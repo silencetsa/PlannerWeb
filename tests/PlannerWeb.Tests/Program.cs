@@ -24,6 +24,8 @@ try
     bool duplicate = false; try { await accounts.Register("alice", "other@example.test", "Only-for-tests-123"); } catch (ArgumentException) { duplicate = true; } Check(duplicate, "normalized nickname uniqueness");
     for (int i = 0; i < 5; i++) await accounts.Login("Боб", "wrong");
     Check(await accounts.Login("Боб", "Only-for-tests-456") is null, "account lockout after five failures");
+    var databaseBytes = File.ReadAllBytes(db.Path); new WebDatabase(db.Path);
+    Check(databaseBytes.SequenceEqual(File.ReadAllBytes(db.Path)), "opening existing schema does not rewrite database bytes");
     var clock = new Clock { Today = new(2026, 10, 13) };
     var sa = new UserPlannerStore(db, a.Id); var sb = new UserPlannerStore(db, b.Id);
     var ea = new PlannerEngine(sa, clock); var eb = new PlannerEngine(sb, clock);
@@ -68,3 +70,4 @@ try
 }
 finally { Directory.Delete(folder, true); }
 sealed class Clock : IPlannerClock { public DateOnly Today { get; set; } }
+

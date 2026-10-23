@@ -16,8 +16,10 @@ COPY scripts/docker-entrypoint.sh /usr/local/bin/planner-entrypoint
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     ASPNETCORE_ENVIRONMENT=Production \
     Planner__DataDirectory=/data \
+    Planner__ExternalHttps=true \
     Planner__TimeZone=Asia/Yekaterinburg
 RUN mkdir -p /data && chown -R app:app /data /app && chmod +x /usr/local/bin/planner-entrypoint
 EXPOSE 8080
 ENTRYPOINT ["planner-entrypoint"]
 CMD ["dotnet", "PlannerWeb.dll"]
+

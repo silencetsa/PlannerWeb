@@ -43,3 +43,10 @@
 - GitHub Actions run 40019459348 passed: warning-free Linux build, all 147 automated checks, Docker image build and production container health probe. See https://github.com/silencetsa/PlannerWeb/actions/runs/40019459348.
 - Added a focused container replacement check with a named /data volume: generate SQLite and cookie keys, verify app ownership, replace the entire container and compare database/key SHA256. This closes the remaining gap between a plain container smoke test and Amvera's mounted persistent storage.
 - Application sources are unchanged by this verification feature. The additional volume check is being run in CI because Docker is not installed on the local machine.
+
+## 24 October 2026 — production HTTPS ingress fix
+
+- The expanded production test caught an antiforgery SSL configuration error that the Development suite and health-only probe could not expose. Docker now declares Planner__ExternalHttps=true; Production assigns the HTTPS scheme under this explicit ingress contract before antiforgery/HSTS. Secure authentication and CSRF cookies remain enforced, and arbitrary forwarded headers remain untrusted. Development stays on ordinary local HTTP.
+- Schema version is now written only when initializing a new web database. A new byte-comparison regression test confirms reopening an existing schema does not rewrite the DB, allowing the mounted-volume check to compare the actual SQLite file as well as session-key files.
+- Added the full 41-request HTTP suite against the Production Docker instance before replacing the container. Local Release build passed with zero warnings/errors; 37 web checks passed. The UI sources and unchanged Core are unaffected.
+- Run 40019881412 recorded the original production failure; the corrected production and volume checks are being rerun before delivery.

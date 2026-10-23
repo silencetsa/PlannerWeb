@@ -18,9 +18,11 @@ public sealed class WebDatabase
         using var c = Open(); using var cmd = c.CreateCommand();
         cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='tasks' AND sql NOT LIKE '%owner_id%'";
         if (Convert.ToInt32(cmd.ExecuteScalar()) > 0) throw new InvalidOperationException("A desktop database cannot be opened as a web database. Use a separate data directory.");
+        cmd.CommandText = "PRAGMA user_version";
+        var version = Convert.ToInt32(cmd.ExecuteScalar());
         // DELETE journal is suitable for Amvera persistent network volumes (no WAL shared-memory dependency).
         cmd.CommandText = "PRAGMA journal_mode=DELETE; CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY, nickname TEXT NOT NULL, normalized_nickname TEXT NOT NULL UNIQUE, email TEXT NOT NULL, normalized_email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, failed_attempts INTEGER NOT NULL DEFAULT 0, locked_until TEXT);"
-            + string.Join("", Tables.Select(t => $"CREATE TABLE IF NOT EXISTS {t}(owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, id TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(owner_id,id));")) + "PRAGMA user_version=1;";
+            + string.Join("", Tables.Select(t => $"CREATE TABLE IF NOT EXISTS {t}(owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, id TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(owner_id,id));")) + (version == 0 ? "PRAGMA user_version=1;" : "");
         cmd.ExecuteNonQuery();
     }
     public SqliteConnection Open()
@@ -54,3 +56,4 @@ public sealed class WebDatabase
         cmd.Parameters.AddWithValue("$hash", newHash ?? u.PasswordHash); cmd.Parameters.AddWithValue("$id", u.Id); cmd.ExecuteNonQuery();
     }
 }
+

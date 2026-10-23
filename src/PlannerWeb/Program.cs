@@ -45,7 +45,10 @@ builder.Services.AddRateLimiter(o =>
         { PermitLimit = 20, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 });
 var app = builder.Build();
-// TLS terminates at Amvera's ingress. Secure cookies do not depend on untrusted forwarded headers.
+// Amvera exposes this deployment only through its HTTPS ingress; internal traffic is HTTP.
+// This explicit deployment contract avoids trusting client-supplied forwarded headers.
+if (!app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("Planner:ExternalHttps"))
+    app.Use((context, next) => { context.Request.Scheme = "https"; return next(context); });
 if (!app.Environment.IsDevelopment()) { app.UseExceptionHandler("/Error"); app.UseHsts(); }
 app.Use(async (context, next) =>
 {
@@ -62,3 +65,4 @@ app.MapGet("/health", (WebDatabase database) => database.Healthy() ? Results.Ok(
 app.MapControllerRoute("default", "{controller=Planner}/{action=Index}/{id?}");
 app.Run();
 public partial class Program { }
+

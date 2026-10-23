@@ -19,6 +19,7 @@ start() {
   return 1
 }
 start
+node scripts/verify-http.mjs http://127.0.0.1:8080
 curl --fail --silent http://localhost:8080/Account/Login >/dev/null
 before=$(docker exec "$container" sh -c 'sha256sum /data/planner-web.db /data/keys/*.xml')
 docker exec "$container" sh -c 'test "$(stat -c %u /data/planner-web.db)" = "$(id -u app)"'
