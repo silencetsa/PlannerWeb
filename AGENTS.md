@@ -50,3 +50,11 @@
 - Schema version is now written only when initializing a new web database. A new byte-comparison regression test confirms reopening an existing schema does not rewrite the DB, allowing the mounted-volume check to compare the actual SQLite file as well as session-key files.
 - Added the full 41-request HTTP suite against the Production Docker instance before replacing the container. Local Release build passed with zero warnings/errors; 37 web checks passed. The UI sources and unchanged Core are unaffected.
 - Run 40019881412 recorded the original production failure; the corrected production and volume checks are being rerun before delivery.
+
+## 24 October 2026 — delivery validation complete
+
+- Corrected run 40020396357 succeeded: Linux warning-free build; 70 unchanged domain scenarios; 37 owner/auth/persistence checks; 41 HTTP scenarios in Development and again against the Production Docker container; Docker image build; SQLite/key SHA256 preservation after replacing the complete container with the same named volume. Database files are owned by the unprivileged app user.
+- Verified run: https://github.com/silencetsa/PlannerWeb/actions/runs/40020396357 (application commit 38bc2e4). This final log-only commit does not alter tested application sources.
+- Public repository silencetsa/PlannerWeb uses master and lives beside the original Planer checkout. Source screenshots remain only in ignored artifacts. No database, password hash, session key, cache or build output is tracked.
+- Hidden browser QA and loopback servers were stopped; the disposable staging project/QA database were removed. The desktop checkout is clean; installed Planer and personal DB were never launched/read/modified.
+- Amvera deployment itself was not requested/executed; Dockerfile, amvera.yml and HTTPS/AllowedHosts/single-replica/storage instructions are ready in README. No hosting credential or project identifier was needed for repository preparation.
