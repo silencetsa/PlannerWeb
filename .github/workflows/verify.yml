@@ -1,0 +1,33 @@
+name: Verify
+on:
+  push:
+    branches: [master]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build src/PlannerWeb/PlannerWeb.csproj -c Release -warnaserror
+      - run: dotnet run --project tests/Planer.Tests -c Release
+      - run: dotnet run --project tests/PlannerWeb.Tests -c Release
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: dotnet publish src/PlannerWeb/PlannerWeb.csproj -c Release -o artifacts/publish
+      - run: node scripts/verify-http.mjs
+      - run: docker build -t planner-web:verify .
+      - name: Container smoke test
+        run: |
+          docker run -d --name planner-web -p 8080:8080 planner-web:verify
+          trap 'docker logs planner-web; docker rm -f planner-web' EXIT
+          for i in $(seq 1 30); do
+            if curl --fail http://localhost:8080/health; then exit 0; fi
+            sleep 2
+          done
+          exit 1

@@ -30,3 +30,10 @@
 - Notification rules stay in Core; an open browser displays due events and retains receipts per owner. Windows autostart/tray/topmost/COM are OS-specific and not included; the current day opens inside the website.
 - Validation: 41 HTTP checks passed against an automatically created disposable database. All seven screens and task/habit/payment/category dialogs inspected in a hidden browser. Registration, edit, completion, repeat scope, real pointer drag, mood/habit marks and exact budget rejection exercised. Scale/drag checked at 1600x900; current day fits 390x844. No browser errors observed.
 - Desktop Core source SHA256 matches the original. The original repository remains clean, and the installed planner/personal data were not opened.
+
+## 24 October 2026 — Amvera deployment preparation
+
+- Added a .NET 10 multi-stage Dockerfile, non-root runtime after mounted-volume permission initialization, port 8080 and Amvera persistenceMount /data. SQLite uses DELETE journal for persistent-volume compatibility; database and Data Protection keys survive rebuilds outside /app.
+- Added solution, Docker exclusions, deployment/runbook and Linux CI: warning-free build, 70 domain tests, 36 web checks, 41 HTTP checks, Docker build and container health smoke test. Production secure cookies work behind TLS termination without trusting arbitrary forwarded headers.
+- Documented one replica/no overlapping deployment, HTTPS/AllowedHosts, backup/recovery, timezone and differences from Windows integration. No Amvera resource has been created; deployment requires the user's hosting account/project.
+- Local validation: Release solution and publish succeeded with zero warnings/errors; 147 automated checks passed. Docker is unavailable locally; container validation is delegated to the repository CI, to be recorded after completion.
