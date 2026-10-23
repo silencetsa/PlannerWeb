@@ -15,3 +15,10 @@
 - Copied Planer.Core from desktop commit `08c53b6` byte-for-byte, retaining domain namespaces and rules. Retained the original SQLite implementation only for regression tests.
 - Carried over the 70 original tests, including recurrence exclusions, rollover, historical preservation, finance rules and drag geometry, plus the source appearance requirements.
 - Validation: 70 original scenarios passed. No installed planner or personal database was used.
+
+## 24 October 2026 — accounts and owner-scoped SQLite
+
+- Added registration with nickname/email/password confirmation and login by either nickname or email. PasswordHasher, secure production cookies, lockout, rate limiting, CSRF and claim-derived ownership protect web access.
+- All 12 planner tables use owner_id FK and (owner_id,id) keys. Transactional saves and a gate over full load/command/save avoid cross-account deletion and lost concurrent updates. A desktop DB is refused explicitly.
+- Added MVC boundary commands and unchanged Core services, configured timezone and persisted cookie keys. Windows-specific integration stays outside the web application.
+- Validation: 36 web checks passed, including owner isolation, FK integrity, same-period keys, recurrence exclusions, history, account lockout and 25 concurrent writes. Release solution built with zero warnings/errors. Original 70 tests still pass.
