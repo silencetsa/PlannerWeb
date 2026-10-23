@@ -1,0 +1,8 @@
+@model PlannerTask
+<button class="task kind-@((int)Model.Kind) @(Model.Completed ? "completed" : "")" draggable="true"
+        data-task="@Model.Id" data-repeat="@((int)Model.Repeat)" data-series="@(Model.SeriesId is not null ? "true" : "false")"
+        data-important="@Model.Important.ToString().ToLowerInvariant()" data-urgent="@Model.Urgent.ToString().ToLowerInvariant()"
+        data-date="@(Model.Date is { } d ? PlannerPage.Iso(d) : "")" data-part="@((int)Model.Part)" aria-pressed="@Model.Completed.ToString().ToLowerInvariant()">
+    <span class="description">@Model.Description</span>
+    @if (Model.Completed) { <img class="task-check" src="~/images/Completed.png" alt="Выполнено" /> }
+</button>

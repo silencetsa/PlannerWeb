@@ -1,0 +1,55 @@
+@model PlannerPage
+@{ ViewData["Title"] = Model.Period + " · Планер"; var management = new[] { "habits", "payments", "finances" }.Contains(Model.Screen); }
+<main class="planner screen-@Model.Screen" data-screen="@Model.Screen" data-today="@PlannerPage.Iso(Model.Engine.Today)" data-selected="@PlannerPage.Iso(Model.Selected)">
+    <div id="csrf" hidden>@Html.AntiForgeryToken()</div>
+    <header class="header @(management ? "management-header" : "")">
+        <nav class="period-nav" aria-label="Навигация планера">
+            @if (!management) {
+            <details class="settings">
+                <summary aria-label="Меню планера">⚙</summary>
+                <div class="menu">
+                    <a href="@Model.Url("week")">Неделя</a><a href="@Model.Url("month")">Месяц</a><a href="@Model.Url("year")">Год</a>
+                    <hr /><a href="@Model.Url("habits")">Привычки</a><a href="@Model.Url("payments")">Платежи</a><a href="@Model.Url("finances")">Финансы</a>
+                    <hr /><span class="username">@User.Identity?.Name</span>
+                    <label class="notification-setting"><input type="checkbox" id="notifications-enabled" checked="@Model.Engine.State.NotificationsEnabled" />Уведомления</label>
+                    <form asp-controller="Account" asp-action="Logout" method="post"><button type="submit">Выйти</button></form>
+                </div>
+            </details>
+            }
+            @if (management) { <a class="arrow" href="@Model.Url("week")" aria-label="Вернуться к неделе">‹</a><h1 class="period">@Model.Period</h1> }
+            else if (Model.Screen == "day") { <a class="arrow" href="@Model.Url("week", Model.Engine.Today)" aria-label="Вернуться к неделе">‹</a><h1 class="period">@Model.Period</h1> }
+            else
+            {
+                <a class="arrow" href="@Model.Url(date: Model.Step(-1))" aria-label="Предыдущий период">‹</a>
+                <a class="period" href="@Model.Url(Model.Screen == "week" ? "month" : "year")" id="period-title">@Model.Period</a>
+                <a class="arrow" href="@Model.Url(date: Model.Step(1))" aria-label="Следующий период">›</a>
+                <a class="today-link" href="@Model.Url("week", Model.Engine.Today)">Сегодня</a>
+                <input type="date" class="date-picker" value="@PlannerPage.Iso(Model.Selected)" min="1900-01-01" max="2200-12-31" aria-label="Перейти к дате" />
+            }
+        </nav>
+        @if (!management && Model.Screen != "day")
+        {
+            <div class="goals">
+                <label class="goal"><strong>@Model.GoalTitle</strong><input value="@Model.Engine.Goal(Model.Key)" data-autosave="goal" data-key="@Model.Key" maxlength="10000" aria-label="@Model.GoalTitle" /></label>
+                @if (Model.Screen != "year") { <div class="parent-goal"><strong>@Model.ParentTitle</strong><span>@(string.IsNullOrEmpty(Model.ParentGoal) ? (Model.Screen == "week" ? "Задаётся в планере месяца" : "Задаётся в планере года") : Model.ParentGoal)</span></div> }
+            </div>
+        }
+        @if (Model.Screen is "habits" or "payments") { <button class="period create" data-open="@(Model.Screen == "habits" ? "habit" : "payment")">Создать</button> }
+    </header>
+    @switch (Model.Screen)
+    {
+        case "week":
+            <div class="week-board">
+                @for (int i = 0; i < 7; i++) { <partial name="_Day" model="new DayModel(Model, Model.First.AddDays(i))" /> }
+                <partial name="_Backlog" model="Model" /><partial name="_Matrix" model="Model" />
+            </div>
+            break;
+        case "day": <div class="today-board"><partial name="_Day" model="new DayModel(Model, Model.Engine.Today)" /></div> break;
+        case "month": <partial name="_Month" model="Model" /> break;
+        case "year": <partial name="_Year" model="Model" /> break;
+        case "habits": <partial name="_Habits" model="Model" /> break;
+        case "payments": <partial name="_Payments" model="Model" /> break;
+        case "finances": <partial name="_Finances" model="Model" /> break;
+    }
+</main>
+<partial name="_Dialogs" />

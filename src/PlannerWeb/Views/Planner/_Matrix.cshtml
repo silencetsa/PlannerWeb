@@ -1,0 +1,9 @@
+@model PlannerPage
+@{ var counts = Model.Engine.Matrix(Model.First, Model.Last); }
+<section class="card matrix-card" data-key="@Model.Key">
+    <h2><button id="toggle-notes">МАТРИЦА</button></h2>
+    <div id="matrix-content"><div class="matrix">
+        @for (int i = 0; i < 4; i++) { <span class="kind-@i quadrant q-@i">@counts.Scheduled[i]</span> }
+    </div><div class="unscheduled"><span>Без времени</span><div>@for (int i = 0; i < 4; i++) { <span class="kind-@i">@counts.Unscheduled[i]</span> }</div></div></div>
+    <textarea id="notes-content" data-autosave="note" data-key="@Model.Key" maxlength="10000" placeholder="Заметки этого периода…" aria-label="Заметки" hidden>@Model.Engine.Note(Model.Key)</textarea>
+</section>

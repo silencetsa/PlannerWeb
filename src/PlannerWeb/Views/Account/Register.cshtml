@@ -1,0 +1,16 @@
+@model RegisterModel
+@{ ViewData["Title"] = "Регистрация · Планер"; }
+<main class="auth-shell">
+    <section class="auth-card card">
+        <h1>Добро пожаловать в планер</h1>
+        <form asp-action="Register" method="post" class="fields">
+            <div asp-validation-summary="All" class="error" role="alert"></div>
+            <label>Никнейм<input asp-for="Nickname" autocomplete="username" minlength="3" maxlength="32" required autofocus /></label>
+            <label>Почта<input asp-for="Email" type="email" autocomplete="email" maxlength="254" required /></label>
+            <label>Пароль<input asp-for="Password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required /><small>От 10 до 128 знаков</small></label>
+            <label>Подтвердите пароль<input asp-for="ConfirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required /></label>
+            <button class="save" type="submit">Зарегистрироваться</button>
+        </form>
+        <a asp-action="Login">Уже есть аккаунт? Войти</a>
+    </section>
+</main>

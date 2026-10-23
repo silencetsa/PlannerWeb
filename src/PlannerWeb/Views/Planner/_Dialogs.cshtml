@@ -1,0 +1,23 @@
+<dialog id="editor"><form id="editor-form" class="fields">
+    <h1 id="editor-title"></h1><div id="editor-fields"></div><p id="editor-error" class="error" role="alert" hidden></p>
+    <div class="dialog-actions"><button type="button" class="cancel" data-close>Отмена</button><button type="submit" class="save" id="editor-submit">Сохранить</button></div>
+</form></dialog>
+<div id="task-menu" class="menu context-menu" hidden><button data-context="edit">Редактировать</button><button data-context="move">Перенести</button><button data-context="delete">Удалить</button></div>
+<template id="task-fields">
+    <label>Описание задачи<textarea name="text" rows="4" maxlength="10000" required placeholder="Что нужно сделать?"></textarea></label>
+    <label class="priority"><span>Неважное</span><input type="checkbox" name="important" role="switch" /><span>Важное</span></label>
+    <label class="priority"><span>Несрочное</span><input type="checkbox" name="urgent" role="switch" /><span>Срочное</span></label>
+    <label>Повтор<select name="repeat">@for (int i = 0; i < 5; i++) { <option value="@i">@PlannerPage.Repeats[i]</option> }</select></label>
+</template>
+<template id="payment-fields">
+    <label>Название<input name="text" required maxlength="200" /></label><label>Сумма, ₽<input name="amount" inputmode="decimal" required /></label>
+    <label>Начало<input name="date" type="date" min="1900-01-01" max="2200-12-31" required /></label>
+    <label>Повтор<select name="repeat">@for (int i = 0; i < 5; i++) { <option value="@i">@PlannerPage.Repeats[i]</option> }</select></label>
+    <label>Окончание (необязательно)<input name="end" type="date" min="1900-01-01" max="2200-12-31" /></label>
+</template>
+<template id="habit-fields">
+    <label>Название<input name="text" required maxlength="26" /></label><fieldset class="palette"><legend>Цвет</legend>@for (int i = 0; i < Palette.Elements.Length; i++) { <label style="--color:@Palette.Elements[i]"><input type="radio" name="color" value="@Palette.Elements[i]" checked="@(i == 3)" aria-label="Цвет @(i + 1)" /><i></i></label> }</fieldset>
+</template>
+<template id="category-fields"><label>Название<input name="text" maxlength="120" required /></label><label>Плановый лимит<input name="amount" inputmode="decimal" required /></label></template>
+<template id="scope-fields"><fieldset class="scope"><label><input type="radio" name="scope" value="0" checked />Только эту задачу</label><label><input type="radio" name="scope" value="1" />Эту и все будущие задачи</label></fieldset></template>
+<template id="move-fields"><label>Дата (пусто — в хранилище)<input name="date" type="date" min="1900-01-01" max="2200-12-31" /></label><label>Часть дня<select name="part"><option value="0">Утро</option><option value="1">День</option><option value="2">Вечер</option></select></label></template>

@@ -1,0 +1,4 @@
+@model PaymentOccurrence
+<button class="payment @(Model.Completed ? "completed" : "")" data-command="payment.toggle" data-id="@Model.PaymentId" data-date="@PlannerPage.Iso(Model.Date)" aria-label="@Model.Name: @PlannerPage.Money(Model.Amount) — отметить оплату" aria-pressed="@Model.Completed.ToString().ToLowerInvariant()">
+    <img src="~/images/@(Model.Completed ? "Completed.png" : "YellowAccent.png")" alt="" /><span>@Model.Name</span><strong>@PlannerPage.Money(Model.Amount)</strong>
+</button>

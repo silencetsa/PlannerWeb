@@ -1,0 +1,15 @@
+@model LoginModel
+@{ ViewData["Title"] = "Вход · Планер"; }
+<main class="auth-shell">
+    <section class="auth-card card">
+        <h1>С возвращением</h1>
+        <form asp-action="Login" method="post" class="fields">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div asp-validation-summary="All" class="error" role="alert"></div>
+            <label>Почта или никнейм<input asp-for="Login" autocomplete="username" maxlength="254" required autofocus /></label>
+            <label>Пароль<input asp-for="Password" type="password" autocomplete="current-password" maxlength="128" required /></label>
+            <button class="save" type="submit">Войти</button>
+        </form>
+        <a asp-action="Register">Создать аккаунт</a>
+    </section>
+</main>

@@ -1,0 +1,29 @@
+@model PlannerPage
+@{ var b = Model.Engine.Budget; }
+<div class="finances-board">
+    <div class="finance-left">
+        <section><h2>Текущий доход</h2><input id="income" inputmode="decimal" value="@b.Income.ToString("F2", PlannerPage.Ru)" aria-label="Текущий доход, рублей" /><p class="error" id="income-error" hidden></p></section>
+        <section><h2>Обязательные платежи</h2><div class="mandatory"><img src="~/images/YellowAccent.png" alt="" /><span>Ежемесячные платежи</span><strong id="mandatory-amount">@PlannerPage.Money(b.MandatoryPayments)</strong></div></section>
+        <section class="card categories"><h2>Категории</h2>
+            <div class="category-row column-titles"><span></span><span>Название</span><span>Плановый лимит</span><span>% дохода</span><span></span></div>
+            @foreach (var c in Model.Engine.State.BudgetCategories.OrderBy(c => c.Order))
+            {
+                <div class="category-row" data-category="@c.Id" data-name="@c.Name" data-limit="@c.Limit.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                    <i class="dot filled" style="--color:@c.Color"></i><span>@c.Name</span><strong>@PlannerPage.Money(c.Limit)</strong><span class="category-percent">@b.Percent(c.Limit).ToString("0.#", PlannerPage.Ru)%</span>
+                    <div class="row-actions"><button data-edit-category="@c.Id" aria-label="Редактировать категорию @c.Name"><img src="~/images/edit.svg" alt="" /></button><button data-command="category.delete" data-id="@c.Id" aria-label="Удалить категорию @c.Name"><img src="~/images/trash.svg" alt="" /></button></div>
+                </div>
+            }
+            @if (Model.Engine.State.BudgetCategories.Count == 0) { <p>Добавьте категории и задайте плановые лимиты.</p> }
+            <button class="add-task" data-open="category" aria-label="Добавить категорию бюджета">+</button>
+        </section>
+    </div>
+    <div class="finance-right">
+        <div id="budget-pie" role="img" aria-label="Распределение бюджета"></div><div id="budget-legend"></div>
+        <div class="budget-total"><span>Всего трат</span><strong id="budget-total">@PlannerPage.Money(b.Total)</strong></div>
+        <div class="budget-total"><span>Остаток (план)</span><strong id="budget-remaining">@PlannerPage.Money(b.Remaining)</strong></div>
+        <p class="error" id="budget-warning">@(b.Remaining < 0 ? "План превышает текущий доход. Уменьшите лимиты или увеличьте доход." : "")</p>
+    </div>
+</div>
+<div id="budget-data" hidden data-income="@b.Income.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-mandatory="@b.MandatoryPayments.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-total="@b.Total.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-remaining="@b.Remaining.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+    @foreach (var c in Model.Engine.State.BudgetCategories.OrderBy(c => c.Order)) { <span data-name="@c.Name" data-color="@c.Color" data-limit="@c.Limit.ToString(System.Globalization.CultureInfo.InvariantCulture)"></span> }
+</div>

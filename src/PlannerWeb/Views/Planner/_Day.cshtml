@@ -1,0 +1,35 @@
+@model DayModel
+@{ var e = Model.Page.Engine; var date = Model.Date; string[] parts = ["GrayPanelAlt.png", "GrayPanel.png", "GrayAccent.png"]; string[] names = ["Радость", "Хорошо", "Злость", "Грусть", "Нейтрально"]; }
+<article class="day-card card @(date == e.Today ? "current" : "")" data-day="@PlannerPage.Iso(date)">
+    <div class="day-header"><strong>@date.ToString("ddd", PlannerPage.Ru).ToUpperInvariant()</strong>
+        <div class="moods">
+            @for (int i = 0; i < 5; i++)
+            {
+                var active = e.MoodOn(date) == (Mood)i;
+                <button data-command="mood" data-mood="@i" data-date="@PlannerPage.Iso(date)" aria-label="@names[i]" aria-pressed="@active.ToString().ToLowerInvariant()"><img src="~/images/@(active ? PlannerPage.MoodFilled[i] : PlannerPage.MoodOutline[i])" alt="" /></button>
+            }
+        </div>
+    </div>
+    <div class="day-sections">
+        @for (int p = 0; p < 3; p++)
+        {
+            <section class="day-section" data-drop data-date="@PlannerPage.Iso(date)" data-part="@p">
+                <img class="part-icon part-@p" src="~/images/@parts[p]" alt="@(p == 0 ? "Утро" : p == 1 ? "День" : "Вечер")" />
+                <div class="section-content">
+                    @if (p == 0) { @foreach (var payment in e.PaymentsOn(date)) { <partial name="_Payment" model="payment" /> } }
+                    @foreach (var task in e.TasksOn(date, (DayPart)p)) { <partial name="_Task" model="task" /> }
+                    <button class="add-task" data-open="task" data-date="@PlannerPage.Iso(date)" data-part="@p" aria-label="Добавить задачу">+</button>
+                </div>
+            </section>
+        }
+    </div>
+    <div class="habit-dots">
+        @foreach (var h in e.HabitsOn(date))
+        {
+            <button data-command="habit.toggle" data-id="@h.HabitId" data-date="@PlannerPage.Iso(date)" aria-label="@h.Name" aria-pressed="@h.Completed.ToString().ToLowerInvariant()">
+                <span>@h.Name</span><i class="dot @(h.Completed ? "filled" : "")" style="--color:@h.Color"></i>
+            </button>
+        }
+    </div>
+    @if (date == e.Today && Model.Page.Screen != "day") { <a class="day-arrow" href="@Model.Page.Url("day", date)" aria-label="Открыть текущий день"><img src="~/images/WhiteAccent.png" alt="" /></a> }
+</article>

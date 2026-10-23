@@ -1,0 +1,6 @@
+@model PlannerPage
+<section class="card backlog" data-drop data-date="">
+    <h2>НУЖНО РАСПРЕДЕЛИТЬ</h2>
+    <div class="backlog-tasks">@foreach (var task in Model.Engine.Backlog) { <partial name="_Task" model="task" /> }</div>
+    <button class="add-task" data-open="task" data-date="" data-part="2" aria-label="Добавить нераспределённую задачу">+</button>
+</section>

@@ -1,0 +1,26 @@
+@model PlannerPage
+@{ string[] weekdays = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"]; }
+<div class="year-board">
+    <label class="year-filter">Показывать <select id="year-mode" aria-label="Режим года">@for (int i = 0; i < 3; i++) { <option value="@i" selected="@(Model.YearMode == i)">@(i == 0 ? "Общий" : i == 1 ? "Настроение" : "Привычки")</option> }</select></label>
+    <div class="year-months">
+        @for (int month = 1; month <= 12; month++)
+        {
+            var first = new DateOnly(Model.Selected.Year, month, 1); var start = Dates.Monday(first);
+            <a class="card year-month" href="@Model.Url("month", first)">
+                <h2>@PlannerPage.Ru.TextInfo.ToTitleCase(first.ToString("MMMM", PlannerPage.Ru))</h2>
+                <div class="weekdays">@foreach (var name in weekdays) { <span>@name</span> }</div>
+                <div class="year-days">
+                    @for (int i = 0; i < 42; i++)
+                    {
+                        var date = start.AddDays(i);
+                        if (date.Month != month) { <span></span> continue; }
+                        <div class="year-day @(date == Model.Engine.Today ? "current" : "")" aria-label="@date.ToString("d MMMM yyyy", PlannerPage.Ru)">
+                            <div><span>@date.Day</span>@if (Model.YearMode != 2) { var mood = Model.Engine.MoodOn(date); <i class="dot @(mood is not null ? "filled" : "")" style="--color:@(mood is { } m ? Palette.MoodColors[(int)m] : "#E8E3E0")"></i> }</div>
+                            @if (Model.YearMode != 1) { <div class="mini-habits">@foreach (var h in Model.Engine.HabitsOn(date)) { <i class="dot filled" style="--color:@(h.Completed ? h.Color : Palette.PaleHabitColor(h.Color))" aria-label="@h.Name"></i> }</div> }
+                        </div>
+                    }
+                </div>
+            </a>
+        }
+    </div>
+</div>

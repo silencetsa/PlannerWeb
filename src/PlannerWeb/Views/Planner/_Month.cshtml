@@ -1,0 +1,19 @@
+@model PlannerPage
+@{ var start = Dates.Monday(Model.First); int weeks = (Model.Last.DayNumber - start.DayNumber) / 7 + 1; string[] weekdays = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"]; }
+<div class="month-board"><div class="month-calendar">
+    <div class="weekdays">@foreach (var name in weekdays) { <strong>@name</strong> }</div>
+    <div class="month-days" style="--weeks:@weeks">
+        @for (int i = 0; i < weeks * 7; i++)
+        {
+            var date = start.AddDays(i);
+            <article class="card month-day @(date.Month != Model.Selected.Month ? "outside" : "") @(date == Model.Engine.Today ? "current" : "")" data-drop data-date="@PlannerPage.Iso(date)" data-week-url="@Model.Url("week", date)">
+                <div class="month-day-header"><a href="@Model.Url("week", date)">@date.Day</a>@if (Model.Engine.MoodOn(date) is { } mood) { <i class="dot filled" style="--color:@Palette.MoodColors[(int)mood]"></i> }</div>
+                <div class="month-day-tasks">
+                    @foreach (var bill in Model.Engine.PaymentsOn(date)) { <partial name="_Payment" model="bill" /> }
+                    @foreach (var task in Model.Engine.TasksOn(date).OrderBy(t => t.Part).ThenBy(t => t.Order)) { <partial name="_Task" model="task" /> }
+                </div>
+                <div class="mini-habits">@foreach (var h in Model.Engine.HabitsOn(date)) { <i class="dot @(h.Completed ? "filled" : "")" style="--color:@h.Color" aria-label="@h.Name"></i> }</div>
+            </article>
+        }
+    </div>
+</div><aside><partial name="_Backlog" model="Model" /><partial name="_Matrix" model="Model" /></aside></div>

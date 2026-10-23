@@ -1,0 +1,19 @@
+@model PlannerPage
+@{ bool completed = ViewBag.Completed is true; var payments = Model.Engine.State.Payments.Where(p => p.DeletedFrom is null && p.IsActive(Model.Engine.Today) != completed).ToArray(); }
+<div class="management-list payments-list">
+    @foreach (var group in payments.GroupBy(p => p.RevisionOn(Model.Engine.Today)!.Repeat).OrderByDescending(g => PlannerPage.FrequencyRank(g.Key)))
+    {
+        <h2>@PlannerPage.Groups[(int)group.Key]</h2>
+        @foreach (var payment in group.OrderByDescending(p => p.RevisionOn(Model.Engine.Today)!.Amount))
+        {
+            var r = payment.RevisionOn(Model.Engine.Today)!;
+            <article class="card management-row payment-row" data-payment="@payment.Id" data-name="@r.Name" data-amount="@r.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-start="@PlannerPage.Iso(r.Start)" data-end="@(r.End is { } end ? PlannerPage.Iso(end) : "")" data-repeat="@((int)r.Repeat)">
+                <div><h3>@r.Name</h3><p>С @r.Start.ToString("dd.MM.yyyy")@(r.End is { } until ? $" · До {until:dd.MM.yyyy} включительно" : " · Без даты окончания")</p></div><strong class="payment-amount">@PlannerPage.Money(r.Amount)</strong>
+                <div class="row-actions">@if (!completed) { <button class="finish-payment" data-command="payment.finish" data-id="@payment.Id" aria-label="Завершить серию @r.Name">✓</button> }<button data-edit-payment="@payment.Id" aria-label="Редактировать платёж @r.Name"><img src="~/images/edit.svg" alt="" /></button><button data-command="payment.delete" data-id="@payment.Id" aria-label="Удалить платёж @r.Name"><img src="~/images/trash.svg" alt="" /></button></div>
+            </article>
+        }
+        <p class="group-total">Итого: <strong>@PlannerPage.Money(group.Sum(p => p.RevisionOn(Model.Engine.Today)!.Amount))</strong></p>
+    }
+    @if (payments.Length == 0) { <p class="empty">@(completed ? "Завершённых платежей пока нет." : "Создайте платёж и задайте его повторение.")</p> }
+</div>
+<a class="cancel payments-switch" href="@(Model.Url() + "&completed=" + (!completed).ToString().ToLowerInvariant())">@(completed ? "Активные платежи" : "Завершённые платежи")</a>

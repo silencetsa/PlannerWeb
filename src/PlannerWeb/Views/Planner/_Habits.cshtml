@@ -1,0 +1,19 @@
+@model PlannerPage
+<div class="management-list habits-list">
+    <p class="active-count">Активных привычек: @Model.Engine.State.Habits.Count(h => h.Ended is null) из 3</p>
+    @foreach (bool ended in new[] { false, true })
+    {
+        var habits = Model.Engine.State.Habits.Where(h => (h.Ended is not null) == ended).OrderByDescending(h => h.Created).ThenByDescending(h => h.Order).ToArray();
+        if (habits.Length == 0) continue;
+        <h2>@(ended ? "Завершённые" : "Активные")</h2>
+        @foreach (var h in habits)
+        {
+            <article class="card management-row habit-row">
+                <i class="dot filled" style="--color:@Palette.HabitColor(h.Color)"></i>
+                <div><h3>@h.Name</h3><p>Создана @h.Created.ToString("dd.MM.yyyy") · Активных дней: @h.ActiveDays(Model.Engine.Today) · Успешных отметок: @Model.Engine.State.HabitChecks.Count(c => c.HabitId == h.Id)</p><p>@(ended ? "Серия при завершении" : "Текущая серия"): @Model.Engine.HabitStreak(h.Id).Days дн. подряд</p>@if (h.Ended is { } end) { <p>Завершена @end.ToString("dd.MM.yyyy")</p> }</div>
+                @if (!ended) { <button class="finish-habit" data-finish-habit="@h.Id" data-name="@h.Name" aria-label="Завершить привычку @h.Name">Завершить</button> }
+            </article>
+        }
+    }
+    @if (Model.Engine.State.Habits.Count == 0) { <p class="empty">Создайте привычку, чтобы отмечать её каждый день.</p> }
+</div>
