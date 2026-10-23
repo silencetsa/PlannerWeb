@@ -22,12 +22,6 @@ jobs:
       - run: dotnet publish src/PlannerWeb/PlannerWeb.csproj -c Release -o artifacts/publish
       - run: node scripts/verify-http.mjs
       - run: docker build -t planner-web:verify .
-      - name: Container smoke test
-        run: |
-          docker run -d --name planner-web -p 8080:8080 planner-web:verify
-          trap 'docker logs planner-web; docker rm -f planner-web' EXIT
-          for i in $(seq 1 30); do
-            if curl --fail http://localhost:8080/health; then exit 0; fi
-            sleep 2
-          done
-          exit 1
+      - name: Container and volume persistence
+        run: bash scripts/verify-container.sh
+

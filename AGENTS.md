@@ -37,3 +37,9 @@
 - Added solution, Docker exclusions, deployment/runbook and Linux CI: warning-free build, 70 domain tests, 36 web checks, 41 HTTP checks, Docker build and container health smoke test. Production secure cookies work behind TLS termination without trusting arbitrary forwarded headers.
 - Documented one replica/no overlapping deployment, HTTPS/AllowedHosts, backup/recovery, timezone and differences from Windows integration. No Amvera resource has been created; deployment requires the user's hosting account/project.
 - Local validation: Release solution and publish succeeded with zero warnings/errors; 147 automated checks passed. Docker is unavailable locally; container validation is delegated to the repository CI, to be recorded after completion.
+
+## 24 October 2026 — Linux and mounted-volume validation
+
+- GitHub Actions run 40019459348 passed: warning-free Linux build, all 147 automated checks, Docker image build and production container health probe. See https://github.com/silencetsa/PlannerWeb/actions/runs/40019459348.
+- Added a focused container replacement check with a named /data volume: generate SQLite and cookie keys, verify app ownership, replace the entire container and compare database/key SHA256. This closes the remaining gap between a plain container smoke test and Amvera's mounted persistent storage.
+- Application sources are unchanged by this verification feature. The additional volume check is being run in CI because Docker is not installed on the local machine.
